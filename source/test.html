@@ -3,7 +3,7 @@
         <title>WebSocket Echo Test</title>
         <script>
             function init() { 
-            websocket = new WebSocket("ws://localhost:9004/test");
+            websocket = new WebSocket("ws://localhost:9000/");
             
             websocket.onopen = function() { document.getElementById("output").innerHTML += "<p>> CONNECTED</p>"; };
             
