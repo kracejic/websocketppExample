@@ -10,6 +10,7 @@ link_libraries(${Boost_SYSTEM_LIBRARY})
 include_directories(SYSTEM PRIVATE 
     ${Boost_INCLUDE_DIRS}
     ${EXTERNAL_WEBSOCKET_INCLUDE_DIR}
+    ${EXTERNAL_PROGRAM_OPTIONS_INCLUDE_DIR}
 )
 
 include_directories(
@@ -31,6 +32,7 @@ if(WIN32) #windows icon resource file, provided from /packaging directory
 endif()
 
 add_executable(exampleApp ${SRCS} ${WINDOWS_ICON_RESOURCE})
+add_dependencies(exampleApp ProgramOptions WebSocket)
 target_link_libraries (exampleApp ${CMAKE_THREAD_LIBS_INIT}) #threading
 if(NOT MSVC)
     target_compile_options(exampleApp PRIVATE -Wall -Wextra -Wshadow -Wnon-virtual-dtor -Wunused -pedantic) # extra warnings

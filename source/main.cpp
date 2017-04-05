@@ -1,68 +1,80 @@
+#include "version.h"
+#include <ProgramOptions.hxx>
+#include <future>
 #include <iostream>
+#include <set>
 #include <stdio.h>
 #include <string>
 #include <vector>
+
+#include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/config/core.hpp>
 #include <websocketpp/server.hpp>
 
-
-#include "version.h"
-
-
-#include <websocketpp/config/asio_no_tls.hpp>
-#include <websocketpp/server.hpp>
-
 using namespace std;
+// using ws = websocketpp;
 
-typedef websocketpp::server<websocketpp::config::asio> server;
-server print_server;
+using server = websocketpp::server<websocketpp::config::asio>;
+server webSocketServer;
+using Connections = std::set<websocketpp::connection_hdl,
+    std::owner_less<websocketpp::connection_hdl>>;
+
+Connections connections;
+
 
 void on_message(websocketpp::connection_hdl hdl, server::message_ptr msg)
 {
     std::cout << msg->get_payload() << std::endl;
 
-    print_server.send(hdl, "test", websocketpp::frame::opcode::text);
+    webSocketServer.send(hdl, "test", websocketpp::frame::opcode::text);
 }
-
-bool on_validate(websocketpp::connection_hdl hdl)
-{
-    cout << "connected" <<endl;
-    return true;
-}
-void on_preinit(websocketpp::connection_hdl hdl)
-{
-    cout << "pre" <<endl;
-}
-void on_postinit(websocketpp::connection_hdl hdl)
-{
-    cout << "post" <<endl;
-}
+//-----------------------------------------------------------------------------
 void on_open(websocketpp::connection_hdl hdl)
 {
-    cout << "connected" <<endl;
+    cout << "connected" << endl;
+    connections.insert(hdl);
 }
-
+//-----------------------------------------------------------------------------
 void on_close(websocketpp::connection_hdl hdl)
 {
-    cout << "closed" <<endl;
+    cout << "closed" << endl;
+    connections.erase(hdl);
 }
-
-int main()
+//-----------------------------------------------------------------------------
+int main(int argc, char** argv)
 {
+    po::parser parser;
+    parser["optimization"].abbreviation('O').type(po::u32).fallback(
+        0); // if --optimization is not explicitly specified, assume 0
 
-    print_server.set_message_handler(&on_message);
-    print_server.set_open_handler(&on_open);
-    print_server.set_close_handler(&on_close);
-    print_server.set_validate_handler(&on_validate);
-    print_server.set_tcp_pre_init_handler(&on_preinit);
-    print_server.set_tcp_post_init_handler(&on_postinit);
-    print_server.set_listen_backlog(64);
-    
+    parser["include-path"] // corresponds to --include-path
+        .abbreviation('I') // corresponds to -I
+        .type(po::string)  // expects a string
+        .multi();          // allows multiple arguments for the same option
+
+    parser(argc, argv);
+
+    webSocketServer.set_message_handler(&on_message);
+    webSocketServer.set_open_handler(&on_open);
+    webSocketServer.set_close_handler(&on_close);
+    webSocketServer.set_listen_backlog(64);
 
 
-    print_server.init_asio();
-    print_server.listen(9003);
-    print_server.start_accept();
+    webSocketServer.init_asio();
+    webSocketServer.listen(9004);
+    webSocketServer.start_accept();
 
-    print_server.run();
+    // async(std::launch::async, []() {
+    //     // webSocketServer.websocketpp::transport::asio::basic_socket::endpoint::is_secure
+    //     while (true)
+    //     {
+    //         sleep(1);
+    //         for (auto& con : connections)
+    //         {
+    //             webSocketServer.send(con, "test", websocketpp::frame::opcode::text);
+    //         }
+    //     }
+    // });
+
+    webSocketServer.run();
 }

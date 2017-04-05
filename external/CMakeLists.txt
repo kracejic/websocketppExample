@@ -150,9 +150,38 @@ set(EXTERNAL_WEBSOCKET_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/WebSocket/src/We
 
 
 #------------------------------------------------------------------------------
+# Fytch/ProgramOptions.hxx - Single-header program options parsing library
+
+ExternalProject_Add(
+    ProgramOptions
+    PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/ProgramOptions
+    GIT_REPOSITORY https://github.com/Fytch/ProgramOptions.hxx.git
+    # For shallow git clone (without downloading whole history)
+    # GIT_SHALLOW 1
+    # For point at certain tag
+    # GIT_TAG 1.5.7
+    #disables auto update on every build
+    UPDATE_DISCONNECTED 1
+    #disable following
+    CONFIGURE_COMMAND "" BUILD_COMMAND "" INSTALL_DIR "" INSTALL_COMMAND ""
+    )
+# Update ProgramOptions target
+add_custom_target(external-ProgramOptions-update
+    COMMENT "Updated ProgramOptions"
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ProgramOptions/src/ProgramOptions
+    COMMAND ${GIT_EXECUTABLE} pull
+    DEPENDS ProgramOptions)
+# set include directory
+set(EXTERNAL_PROGRAM_OPTIONS_INCLUDE_DIR
+    "${CMAKE_CURRENT_SOURCE_DIR}/ProgramOptions/src/ProgramOptions/"
+    PARENT_SCOPE)
+
+
+
+#------------------------------------------------------------------------------
 # Convenience update all
 add_custom_target(external-update-all
     COMMENT "Updated all external projects"
-    DEPENDS external-WebSocket-update external-Catch-update)
+    DEPENDS external-WebSocket-update  external-ProgramOptions-update external-Catch-update)
 add_custom_target(update
     DEPENDS externa-update-all)
