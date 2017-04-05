@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Websocketpp example server
+Comment=This is an example websocketpp server
+Keywords=cpp;websocket;example;
+Exec=websocketserver
+Icon=websocketserver.png
+Terminal=true
+Type=Application
+Categories=Utility;GNOME;GTK;

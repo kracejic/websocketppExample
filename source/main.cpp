@@ -1,10 +1,13 @@
 #include "version.h"
 #include <ProgramOptions.hxx>
+#include <chrono>
 #include <future>
 #include <iostream>
+#include <mutex>
 #include <set>
 #include <stdio.h>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include <websocketpp/config/asio_no_tls.hpp>
@@ -20,7 +23,7 @@ using Connections = std::set<websocketpp::connection_hdl,
     std::owner_less<websocketpp::connection_hdl>>;
 
 Connections connections;
-// TODO mutex
+std::mutex conMutex;
 
 
 void on_message(websocketpp::connection_hdl hdl, server::message_ptr msg)
@@ -39,12 +42,14 @@ void on_message(websocketpp::connection_hdl hdl, server::message_ptr msg)
 void on_open(websocketpp::connection_hdl hdl)
 {
     cout << "connected" << endl;
+    lock_guard<mutex> lock(conMutex);
     connections.insert(hdl);
 }
 //-----------------------------------------------------------------------------
 void on_close(websocketpp::connection_hdl hdl)
 {
     cout << "closed" << endl;
+    lock_guard<mutex> lock(conMutex);
     connections.erase(hdl);
 }
 //-----------------------------------------------------------------------------
@@ -56,16 +61,22 @@ int main(int argc, char** argv)
         "Delay between messages");
     parser["port"].abbreviation('p').type(po::u32).fallback(9000);
     parser["verbose"].abbreviation('v').description("Verbose output");
+    parser["version"].description("Prints version");
 
     parser["help"]
         .abbreviation('?')
-        .abbreviation('h')
         .description("print this help screen")
         .callback([&] { std::cout << parser << '\n'; });
 
     parser(argc, argv);
     if (parser["help"].size())
         return 0;
+    if (parser["version"].size())
+    {
+        cout << "websocketpp example server" << endl;
+        cout << Version::getVersionLong() << endl;
+        return 0;
+    }
 
     int delay = parser["delay"].get().u32;
 
@@ -87,7 +98,9 @@ int main(int argc, char** argv)
         while (not done)
         {
             cout << "sending batch" << endl;
-            usleep(delay * 1000);
+            std::this_thread::sleep_for(
+                std::chrono::microseconds(delay * 1000));
+            lock_guard<mutex> lock(conMutex);
             for (auto& con : connections)
             {
                 cout << "  * data:" << endl;

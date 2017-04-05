@@ -5,9 +5,9 @@ include(InstallRequiredSystemLibraries)
 
 set(CPACK_PACKAGE_VENDOR "kracejic")
 set(CPACK_PACKAGE_CONTACT "kracejic <kracejic@gmail.com>")
-set(HOMEPAGE "https://github.com/kracejic/cleanCppProject")
+set(HOMEPAGE "https://github.com/kracejic/websockeppExample")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
-    "Clean cpp project. This is simple cpp example project build with CMake.")
+    "Example websocketpp server")
 set(CPACK_PACKAGE_DESCRIPTION_FILE "${PROJECT_SOURCE_DIR}/readme.md")
 SET(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/license.md")
 set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
@@ -19,8 +19,8 @@ set(CPACK_PACKAGE_DIRECTORY "${CMAKE_BINARY_DIR}/out")
 
 
 # set human names to exetuables
-set(CPACK_PACKAGE_EXECUTABLES "exampleApp" "My Example Executable")
-set(CPACK_CREATE_DESKTOP_LINKS "exampleApp")
+set(CPACK_PACKAGE_EXECUTABLES "websocketserver" "Example websocket server")
+set(CPACK_CREATE_DESKTOP_LINKS "websocketserver")
 set(CPACK_STRIP_FILES TRUE)
 
 
@@ -41,7 +41,7 @@ if(WIN32 AND NOT UNIX)
         # sure there is at least one set of four (4) backlasshes.
         set(CPACK_NSIS_DISPLAY_NAME "Clean cpp Project")
         # Icon of the installer
-        set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}\\\\exampleApp.ico")
+        set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}\\\\websocketserver.ico")
         # set(CPACK_NSIS_HELP_LINK "http:\\\\\\\\www.my-project-home-page.org")
         # set(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\www.my-personal-home-page.com")
         set(CPACK_NSIS_CONTACT "${CPACK_PACKAGE_CONTACT}")
@@ -50,13 +50,13 @@ if(WIN32 AND NOT UNIX)
         message(STATUS "   + NSIS                                 NO ")
     endif()
 
-    set(CPACK_PACKAGE_ICON "${CMAKE_CURRENT_SOURCE_DIR}\\\\exampleApp.png")
+    set(CPACK_PACKAGE_ICON "${CMAKE_CURRENT_SOURCE_DIR}\\\\websocketserver.png")
 
     # Configure file with right path, place the result to PROJECT_BINARY_DIR.
-    # When ${PROJECT_BINARY_DIR}/exampleApp.icon.rc is added to an executable
-    # it will have icon specified in exampleApp.icon.in.rc
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/exampleApp.icon.in.rc
-        ${PROJECT_BINARY_DIR}/exampleApp.icon.rc)
+    # When ${PROJECT_BINARY_DIR}/websocketserver.icon.rc is added to an executable
+    # it will have icon specified in websocketserver.icon.in.rc
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/websocketserver.icon.in.rc
+        ${PROJECT_BINARY_DIR}/websocketserver.icon.rc)
 
 else()
     #-----------------------------------------------------------------------------
@@ -103,15 +103,15 @@ else()
 
     # Icon and app shortcut for Linux systems
     # Note: .desktop file must have same name as executable
-    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/exampleApp.desktop
+    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/websocketserver.desktop
         DESTINATION share/applications/
         PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
         )
-    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/exampleApp.png
+    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/websocketserver.png
         DESTINATION share/icons/hicolor/256x256/apps/
         PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
         )
-    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/exampleApp.png
+    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/websocketserver.png
         DESTINATION share/icons/gnome/256x256/apps/
         PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
         )
@@ -121,7 +121,7 @@ else()
         PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
         RENAME copyright)
     # set package icon
-    set(CPACK_PACKAGE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/exampleApp.png")
+    set(CPACK_PACKAGE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/websocketserver.png")
 endif()
 
 

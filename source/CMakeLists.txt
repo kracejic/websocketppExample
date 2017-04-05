@@ -5,7 +5,6 @@ configure_file (
   )
 
 find_package(Boost COMPONENTS system REQUIRED)
-link_libraries(${Boost_SYSTEM_LIBRARY})
 
 include_directories(SYSTEM PRIVATE 
     ${Boost_INCLUDE_DIRS}
@@ -26,45 +25,49 @@ set(SRCS
 find_package (Threads REQUIRED) #threading
 
 #-------------------------------------------------------------------------------
-#exampleApp executable setup
+#websocketserver executable setup
 if(WIN32) #windows icon resource file, provided from /packaging directory
-    set(WINDOWS_ICON_RESOURCE "${PROJECT_BINARY_DIR}/exampleApp.icon.rc")
+    set(WINDOWS_ICON_RESOURCE "${PROJECT_BINARY_DIR}/websocketserver.icon.rc")
 endif()
 
-add_executable(exampleApp ${SRCS} ${WINDOWS_ICON_RESOURCE})
-add_dependencies(exampleApp ProgramOptions WebSocket)
-target_link_libraries (exampleApp ${CMAKE_THREAD_LIBS_INIT}) #threading
+add_executable(websocketserver ${SRCS} ${WINDOWS_ICON_RESOURCE})
+add_dependencies(websocketserver ProgramOptions WebSocket)
+target_link_libraries (websocketserver ${CMAKE_THREAD_LIBS_INIT}) #threading
 if(NOT MSVC)
-    target_compile_options(exampleApp PRIVATE -Wall -Wextra -Wshadow -Wnon-virtual-dtor -Wunused -pedantic) # extra warnings
+    target_compile_options(websocketserver PRIVATE -Wall -Wextra -Wshadow -Wnon-virtual-dtor -Wunused -pedantic) # extra warnings
 endif()
-set_property(TARGET exampleApp PROPERTY CXX_STANDARD 14) # we want C++14
-install(TARGETS exampleApp DESTINATION bin) #copy executable to bin folder on install
+set_property(TARGET websocketserver PROPERTY CXX_STANDARD 14) # we want C++14
+install(TARGETS websocketserver DESTINATION bin) #copy executable to bin folder on install
 # convenience target for running the binary
-add_custom_target(exampleApp-run
+add_custom_target(websocketserver-run
     WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin
-    COMMAND ./exampleApp
-    DEPENDS exampleApp Install_)
+    COMMAND ./websocketserver
+    DEPENDS websocketserver Install_)
+if(WIN32)
+    target_link_libraries(websocketserver wsock32 ws2_32)
+endif()
+target_link_libraries(websocketserver ${Boost_SYSTEM_LIBRARY})
 
 # short convenience target
-add_custom_target(run DEPENDS exampleApp-run)
+add_custom_target(run DEPENDS websocketserver-run)
 
 # convenience run gdb target
 find_program(GDB_PATH gdb)
 if(GDB_PATH)
     add_custom_target(gdb
         WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin
-        COMMAND ${GDB_PATH} ./exampleApp
-        DEPENDS exampleApp Install_)
+        COMMAND ${GDB_PATH} ./websocketserver
+        DEPENDS websocketserver Install_)
 endif()
 
 # And this would add -DBAR_ENABLE_FEATURE or equivalent to build command
-# target_compile_definitions(exampleApp PRIVATE BAR_ENABLE_FEATURE)
+# target_compile_definitions(websocketserver PRIVATE BAR_ENABLE_FEATURE)
 
 # Add compile time definition based on option
 # option(OPTION_NAME "description for end user" OFF)
 # if(OPTION_NAME)
 #     # you can do anything here, eg. setup new optional executable
-#     target_compile_definitions(exampleApp PRIVATE DEFINE_NAME)
+#     target_compile_definitions(websocketserver PRIVATE DEFINE_NAME)
 # endif()
 
 # Add building new shared library
@@ -94,6 +97,7 @@ if(MINGW)
     install(FILES ${GCC_PATH}/${libgcc}
         ${GCC_PATH}/libwinpthread-1.dll
         ${GCC_PATH}/libstdc++-6.dll
+        ${GCC_PATH}/libboost_system-mt.dll
         DESTINATION ./bin/
     )
 endif(MINGW)

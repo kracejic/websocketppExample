@@ -1,20 +1,9 @@
-# cleanCppProject
+# websocketppExample
 
-![Build Status](https://travis-ci.org/kracejic/cleanCppProject.svg?branch=master)
+This is an example websocketpp based server with an option to flood all clients
+with data. This is usefull for performance testing of your clients.
 
-This is a empty frame for project in C++. It should help to start a new project without caring much about project/build environment setup.
 
-
-## Features
-
-* Modern, simple CMake build scripts, divided into several components for readability.
-* Sane and simple targets for everything (see *targets* section).
-* CPack script which can produce **deb**, **rpm**, **windows installer** and various compressed packages.
-* Tests via CTest.
-* Unit tests via Catch.
-* Documentation generation via Doxygen (code + wiki + UML diagrams with Graphviz and PlanUML).
-* Static analysis support (clang-tidy, cppcheck).
-* Works with your favourite linux distro, Windows and MacOS.
 
 ## Important pages
 
@@ -126,9 +115,9 @@ and you can now open a `.sln` file with Visual Studio. You need to right click o
     * *all* (the default if no target is provided)
     * *clean*
     * *install* - install binaries into *CMAKE_INSTALL_PREFIX*
-    * *exampleApp* - build exampleApp binary
-    * *exampleApp-run* - build, install and run exampleApp binary (for your convenience)
-    * *run* - alias for exampleApp-run (in order to keep it short)
+    * *websocketserver* - build websocketserver binary
+    * *websocketserver-run* - build, install and run websocketserver binary (for your convenience)
+    * *run* - alias for websocketserver-run (in order to keep it short)
 * Testing
     * *check* - run whole test suite (see test/CMakeLists.txt)
     * *checkVerbose* - run whole test suite (see test/CMakeLists.txt), but more verbose
