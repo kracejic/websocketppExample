@@ -10,6 +10,7 @@ include_directories(SYSTEM PRIVATE
     ${Boost_INCLUDE_DIRS}
     ${EXTERNAL_WEBSOCKET_INCLUDE_DIR}
     ${EXTERNAL_PROGRAM_OPTIONS_INCLUDE_DIR}
+    ${EXTERNAL_KRLIB_INCLUDE_DIR}
 )
 
 include_directories(
@@ -31,7 +32,7 @@ if(WIN32) #windows icon resource file, provided from /packaging directory
 endif()
 
 add_executable(websocketserver ${SRCS} ${WINDOWS_ICON_RESOURCE})
-add_dependencies(websocketserver ProgramOptions WebSocket)
+add_dependencies(websocketserver ProgramOptions WebSocket Krlib)
 target_link_libraries (websocketserver ${CMAKE_THREAD_LIBS_INIT}) #threading
 if(NOT MSVC)
     target_compile_options(websocketserver PRIVATE -Wall -Wextra -Wshadow -Wnon-virtual-dtor -Wunused -pedantic) # extra warnings

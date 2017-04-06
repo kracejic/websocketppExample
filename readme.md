@@ -12,25 +12,12 @@ with data. This is usefull for performance testing of your clients.
 * [Basic directory structure](doc/directoryStructure.md)
 * [How to start working](doc/start_working.md)
 
-\todo see how todo works
-
-## How to convert this to your new project
-
-~~~
-git clone https://github.com/kracejic/cleanCppProject.git yourNewProject
-cd yourNewProject
-rm -rf .git
-git init
-git add .
-git commit -m "first commit"
-~~~
-
-More in [How to start working](doc/start_working.md).
 
 ## Building instructions
 
 ### Prerequisites
 
+* boost
 * CMake 3.2 and newer
 * Compiler with support for C++14
 * git - for downloading external resources
@@ -38,12 +25,13 @@ More in [How to start working](doc/start_working.md).
 * clang-tools for static analysis and formatting
 * cppcheck for another static analysis
 
+
 #### Prerequisites on Linux
 
-* Arch Linux: `sudo pacman -S cmake g++ graphviz git clang clang-tools-extra cppcheck java-runtime-common cppcheck`
+* Arch Linux: `sudo pacman -S cmake g++ graphviz git clang clang-tools-extra cppcheck java-runtime-common cppcheck boost`
     * download plantuml.jar and have it somewhere where *PATH* points to
 
-* Ubuntu 16.04: `sudo apt-get install cmake g++ graphviz plantuml git clang clang-tidy clang-format cppcheck`
+* Ubuntu 16.04: `sudo apt-get install cmake g++ graphviz plantuml git clang clang-tidy clang-format cppcheck boost`
 
 #### Prerequisites on Windows
 
@@ -61,7 +49,8 @@ Two ways, which were tested:
 
 #### Prerequisites on macOS
 
-* macOS Sierra `brew install llvm doxygen cppcheck graphviz`
+* macOS Sierra `brew install llvm doxygen cppcheck graphviz boost`
+* *not tested*
 
 ### Build on Linux & macOS
 
@@ -82,6 +71,18 @@ ninja all doc install
 
 
 ### Build on windows
+
+#### Build on windows using MSYS2
+
+On windows you should prefer Ninja since it is much faster than make (but has no color in shell).
+
+With gcc:
+~~~
+mkdir build ; cd build
+cmake -G "MSYS Makefiles" ..
+make install -j8
+~~~
+
 
 #### Build on windows using MSYS2 + ninja
 
@@ -149,7 +150,7 @@ and you can now open a `.sln` file with Visual Studio. You need to right click o
 
 # License
 
-> Copyright (c) 2016 Kracejic
+> Copyright (c) 2017 Kracejic
 >
 > Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 >

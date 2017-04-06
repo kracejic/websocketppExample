@@ -176,12 +176,40 @@ set(EXTERNAL_PROGRAM_OPTIONS_INCLUDE_DIR
     "${CMAKE_CURRENT_SOURCE_DIR}/ProgramOptions/src/ProgramOptions/"
     PARENT_SCOPE)
 
+#------------------------------------------------------------------------------
+# kracejic/krlib - help library
+
+ExternalProject_Add(
+    Krlib
+    PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/Krlib
+    GIT_REPOSITORY https://github.com/kracejic/krlib.git
+    # For shallow git clone (without downloading whole history)
+    # GIT_SHALLOW 1
+    # For point at certain tag
+    # GIT_TAG 1.5.7
+    #disables auto update on every build
+    UPDATE_DISCONNECTED 1
+    #disable following
+    CONFIGURE_COMMAND "" BUILD_COMMAND "" INSTALL_DIR "" INSTALL_COMMAND ""
+    )
+# Update Krlib target
+add_custom_target(external-Krlib-update
+    COMMENT "Updated Krlib"
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Krlib/src/Krlib
+    COMMAND ${GIT_EXECUTABLE} pull
+    DEPENDS Krlib)
+# set include directory
+set(EXTERNAL_KRLIB_INCLUDE_DIR
+    "${CMAKE_CURRENT_SOURCE_DIR}/Krlib/src/Krlib/source"
+    PARENT_SCOPE)
+
 
 
 #------------------------------------------------------------------------------
 # Convenience update all
 add_custom_target(external-update-all
     COMMENT "Updated all external projects"
-    DEPENDS external-WebSocket-update  external-ProgramOptions-update external-Catch-update)
+    DEPENDS external-WebSocket-update external-ProgramOptions-update
+    external-Catch-update external-Krlib-update)
 add_custom_target(update
-    DEPENDS externa-update-all)
+    DEPENDS external-update-all)

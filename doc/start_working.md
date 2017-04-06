@@ -23,49 +23,6 @@ Function main is in the `source/main.cpp`.
 If you want to add an file, add it to `source/CMakeLists.txt` into *SRCS*
 variable, then it will be compiled to exampleApp target.
 
-## Change the name of the executable
-
-### Manual proces:
-
-* **packaging/exampleApp.desktop.desktop** - rename file, change texts, replace "exampleApp" strings with your new executable name
-* **packaging/exampleApp.ico** - rename file
-* **packaging/exampleApp.icon.in.rc** - rename file, replace "exampleApp" strings with your new executable name
-* **packaging/exampleApp.png** - rename file
-* **packaging/CMakeLists.txt** - change description texts, windows desktop icon name (CPACK_NSIS_DISPLAY_NAME), replace "exampleApp" strings with your new executable name
-* **test/CMakeLists.txt** - replace "exampleApp" strings with your new executable name
-* **readme.md** - replace "exampleApp" strings with your new executable name
-* **source/CMakeLists.txt** - replace "exampleApp" strings with your new executable name
-* **doc/start_working.md** - replace "exampleApp" strings with your new executable name
-* **doc/directoryStructure.md** - replace "exampleApp" strings with your new executable name
-
-### Automatic process (for linux):
-
-This expect, that you have installed ag, the silver searcher (faster grep with
-simpler usage). If you created build directory starting with other than
-"build", you may want to delete it (ag respects .gitignore, and it would
-happily wreck your build directory with sed).
-
-We will first rename the files handling icons, then we run sed (streaming
-editor) and replace all occurences of exampleApp with your new name.
-
-~~~bash
-cd [root/of/project]
-export NEWNAME="newExecutableName"
-
-git mv packaging/exampleApp.desktop    packaging/${NEWNAME}.desktop
-git mv packaging/exampleApp.ico        packaging/${NEWNAME}.ico
-git mv packaging/exampleApp.icon.in.rc packaging/${NEWNAME}.icon.in.rc 
-git mv packaging/exampleApp.png        packaging/${NEWNAME}.png
-
-ag -l exampleApp | xargs sed -i -e "s/exampleApp/${NEWNAME}/g"
-~~~
-
-Then change description in **.desktop** and **packaging/CMakeLists.txt** files.
-
-## Change icon
-
-Just change replace packaging/exampleApp.ico and packaging/exampleApp.png with
-your own images.
 
 ## Tests
 
