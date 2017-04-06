@@ -1,7 +1,9 @@
 #include "version.h"
 #include <ProgramOptions.hxx>
 #include <chrono>
+#include <cstring>
 #include <ctime>
+#include <fstream>
 #include <future>
 #include <iostream>
 #include <kr/base64.h>
@@ -16,6 +18,8 @@
 #include <thread>
 #include <time.h>
 #include <vector>
+
+#include "zlib.h"
 
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/config/core.hpp>
@@ -33,28 +37,61 @@ Connections connections;
 std::mutex conMutex;
 
 
-string generateMessage(int count)
+pair<string, int> generateMessage(int count)
 {
+    static vector<unsigned char> buffer;
+
+
     int64_t timestamp = time(0);
     string msg = "";
     msg += R"({"timestamp":)" + kr::itostr(timestamp) +
-           R"(, "id":"5555", "payload":[)";
+           R"(, "id":"5555", "payload":)";
 
+    string inner = "[";
     for (int i = 0; i < count; ++i)
     {
 
         int id = rand() % 100;
-        msg += R"({"id":")" + kr::itostr(id) + R"(", "timestamp":)" +
-               kr::itostr(timestamp - rand() % 10000) +
-               R"(, data:"asdasdads"},)";
+        inner += R"({"id":")" + kr::itostr(id) + R"(", "timestamp":)" +
+                 kr::itostr(timestamp - rand() % 10000) +
+                 R"(, data:"asdasdads"},)";
     }
-
     // remove last ,
-    msg.pop_back();
+    inner.pop_back();
+    inner += "]";
 
-    msg += R"(]})";
 
-    return msg;
+    // GZIP compression
+    size_t size = inner.length() * 1.1 + 64;
+    buffer.reserve(size);
+    compress((buffer.data() + 8), &size, (Bytef*)inner.data(), inner.length());
+    unsigned char header[10] = {
+        0x1F, 0x8B, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03};
+    memcpy(buffer.data(), header, 10);
+
+    // crc
+    unsigned long crc = crc32(0L, Z_NULL, 0);
+    crc = crc32(crc, (const unsigned char*)inner.data(), inner.length());
+    memcpy(buffer.data() + size + 4, &crc, 4);
+
+    // length
+    uint32_t x = inner.length();
+    memcpy(buffer.data() + size + 8, &x, 4);
+
+
+    // ofstream tmp("xxx.gz", ios::binary);
+    // tmp.write((char*)buffer.data(), size + 12);
+
+    // gzFile outfile = gzopen("xxx2.gz", "wb");
+    // gzwrite(outfile, inner.data(), inner.length());
+    // gzclose(outfile);
+
+    msg += "\"" + kr::Base64::encode(buffer.data(), size + 12) + "\"";
+
+
+    msg += R"(})";
+
+    return {msg, inner.length()};
 }
 //-----------------------------------------------------------------------------
 void on_message(websocketpp::connection_hdl hdl, server::message_ptr msg)
@@ -134,6 +171,7 @@ int main(int argc, char** argv)
         kr::SpeedTimer t;
         int laps = 0;
         long sentBytes = 0;
+        long sentBytesBeforeCompression = 0;
         long limit = 0;
         t.start();
         while (not done)
@@ -141,10 +179,14 @@ int main(int argc, char** argv)
             if (verbose)
                 cout << "sending data" << endl;
 
+                if(delay > 0)
             std::this_thread::sleep_for(std::chrono::nanoseconds(delay * 1000));
 
-            string msg = generateMessage(count);
+            auto ret = generateMessage(count);
+            string& msg = ret.first;
+
             sentBytes += msg.length();
+            sentBytesBeforeCompression += ret.second;
             long lastPacket = msg.length() / 1024;
 
             lock_guard<mutex> lock(conMutex);
@@ -168,14 +210,21 @@ int main(int argc, char** argv)
                     limit -= 1 + limit / 5;
 
                 double speed = double(sentBytes) / t.getSec() / 1024;
+                double speed2 =
+                    double(sentBytesBeforeCompression) / t.getSec() / 1024;
                 t.start();
                 sentBytes = 0;
+                sentBytesBeforeCompression = 0;
                 if (speed > 10000)
                     cout << "Data are sent at" << speed / 1024
-                         << "MB/s, last packet: " << lastPacket << "kB" << endl;
+                         << "MB/s, before compression: " << speed2 / 1024
+                         << "MB/s, last packet: " << lastPacket << "kB, / "
+                         << ret.second << "kB" << endl;
                 else
                     cout << "Data are sent at" << speed
-                         << "kB/s, last packet: " << lastPacket << "kB" << endl;
+                         << "kB/s, before compression: " << speed2
+                         << "kB/s, last packet: " << lastPacket << "kB, / "
+                         << ret.second << "kB" << endl;
             }
         }
     });
