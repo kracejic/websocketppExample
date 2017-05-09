@@ -51,6 +51,8 @@ endif()
 target_link_libraries (websocketserver ${CMAKE_THREAD_LIBS_INIT}
     ${ZLIB_LIBRARIES} ${Boost_SYSTEM_LIBRARY})
 
+
+#------------------------------------------------------------------------------
 # short convenience target
 add_custom_target(run DEPENDS websocketserver-run)
 

@@ -31,7 +31,7 @@ with data. This is usefull for performance testing of your clients.
 * Arch Linux: `sudo pacman -S cmake g++ graphviz git clang clang-tools-extra cppcheck java-runtime-common cppcheck boost`
     * download plantuml.jar and have it somewhere where *PATH* points to
 
-* Ubuntu 16.04: `sudo apt-get install cmake g++ graphviz plantuml git clang clang-tidy clang-format cppcheck boost`
+* Ubuntu 16.04: `sudo apt-get install cmake g++ graphviz plantuml git clang clang-tidy clang-format cppcheck boost  libasio-dev libboost-system-dev`
 
 #### Prerequisites on Windows
 
